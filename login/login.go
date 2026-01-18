@@ -51,7 +51,6 @@ var LoginCommand = &cli.Command{
 	Action: loginAction,
 }
 
-// LogoutCommand is the CLI command for Instagram logout
 var LogoutCommand = &cli.Command{
 	Name:  "logout",
 	Usage: "Logout from your Instagram account",
@@ -64,7 +63,6 @@ var LogoutCommand = &cli.Command{
 	Action: logoutAction,
 }
 
-// StatusCommand is the CLI command to check login status
 var StatusCommand = &cli.Command{
 	Name:   "status",
 	Usage:  "Check current login status",
@@ -100,22 +98,21 @@ func loginAction(ctx context.Context, cmd *cli.Command) error {
 		return loginWithSessionID(storage, sessionID)
 	}
 
-	// Get username - check for saved credentials first
-	username := cmd.String("username")
-	password := cmd.String("password")
+	var username string
+	var password string
 
-	// If no username provided, check for saved credentials
-	if username == "" && password == "" {
-		savedCreds, err := storage.LoadCredentials()
-		if err == nil && savedCreds != nil && savedCreds.Username != "" {
-			fmt.Printf("💾 Saved credentials found for @%s\n", savedCreds.Username)
-			useSaved, _ := promptInput("Use saved credentials? [Y/n]: ")
-			if useSaved == "" || strings.ToLower(useSaved) == "y" || strings.ToLower(useSaved) == "yes" {
-				username = savedCreds.Username
-				password = savedCreds.Password
-				fmt.Printf("Using saved credentials for @%s\n", username)
-			}
+	savedCreds, err := storage.LoadCredentials()
+	if err == nil && savedCreds != nil && savedCreds.Username != "" {
+		fmt.Printf("💾 Saved credentials found for @%s\n", savedCreds.Username)
+		useSaved, _ := promptInput("Use saved credentials? [Y/n]: ")
+		if useSaved == "" || strings.ToLower(useSaved) == "y" || strings.ToLower(useSaved) == "yes" {
+			username = savedCreds.Username
+			password = savedCreds.Password
+			fmt.Printf("Using saved credentials for @%s\n", username)
 		}
+	} else {
+		username = cmd.String("username")
+		password = cmd.String("password")
 	}
 
 	// Get username if still empty
@@ -233,10 +230,8 @@ func logoutAction(ctx context.Context, cmd *cli.Command) error {
 		return nil
 	}
 
-	// Restore client and logout
 	igClient, err := storage.RestoreClient(storedSession)
 	if err != nil {
-		// Just delete local session
 		if err := storage.DeleteSession(); err != nil {
 			return fmt.Errorf("failed to delete session: %w", err)
 		}
@@ -254,12 +249,10 @@ func logoutAction(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("failed to delete session: %w", err)
 	}
 
-	// Clear cache
 	storage.ClearCache()
 
 	fmt.Printf("✓ Successfully logged out from %s\n", storedSession.Username)
 
-	// Handle credentials
 	if clearCreds {
 		if err := storage.DeleteCredentials(); err != nil {
 			fmt.Printf("⚠ Warning: Failed to delete credentials: %v\n", err)
