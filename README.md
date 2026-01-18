@@ -50,7 +50,7 @@ GLOBAL OPTIONS:
 
 ### Inbox Browsing
 *Stay updated with your Direct Messages without opening a browser.*
-<img width="842" alt="DMs Screenshot" src="https://github.com/user-attachments/assets/3c8255b9-0a9a-41da-ab38-d87ee1be09e2" />
+<img width="871"  alt="Direct messages screnshot" src="https://github.com/user-attachments/assets/8754602a-de37-459b-93c9-17a1d7f6e86f" />
 
 ### Messaging interface
 *Direct communication with followers via a clean CLI interface.*
