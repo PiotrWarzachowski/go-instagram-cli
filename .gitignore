@@ -1,0 +1,15 @@
+# Binaries
+go-instagram-cli
+*.exe
+
+# Sessions & Secrets (Don't leak your account!)
+session.json
+.env
+
+# Temporary files from uploads
+story_upload*
+segment_*.mp4
+segment_*.jpg
+
+# OS files
+.DS_Store

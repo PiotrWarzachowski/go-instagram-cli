@@ -1,0 +1,314 @@
+package login
+
+import (
+	"bufio"
+	"context"
+	"fmt"
+	"os"
+	"strings"
+	"syscall"
+
+	"github.com/urfave/cli/v3"
+	"golang.org/x/term"
+
+	"github.com/go-instagram-cli/internal/platform/instagram"
+	"github.com/go-instagram-cli/internal/storage"
+)
+
+var LoginCommand = &cli.Command{
+	Name:  "login",
+	Usage: "Login to your Instagram account",
+	Flags: []cli.Flag{
+		&cli.StringFlag{
+			Name:    "username",
+			Aliases: []string{"u"},
+			Usage:   "Instagram username",
+		},
+		&cli.StringFlag{
+			Name:    "password",
+			Aliases: []string{"p"},
+			Usage:   "Instagram password (not recommended, use interactive prompt)",
+		},
+		&cli.StringFlag{
+			Name:    "session",
+			Aliases: []string{"s"},
+			Usage:   "Login using session ID",
+		},
+		&cli.StringFlag{
+			Name:  "2fa",
+			Usage: "Two-factor authentication code",
+		},
+		&cli.BoolFlag{
+			Name:    "force",
+			Aliases: []string{"f"},
+			Usage:   "Force new login even if session exists",
+		},
+		&cli.BoolFlag{
+			Name:    "debug",
+			Aliases: []string{"d"},
+			Usage:   "Enable debug output",
+		},
+	},
+	Action: loginAction,
+}
+
+var LogoutCommand = &cli.Command{
+	Name:  "logout",
+	Usage: "Logout from your Instagram account",
+	Flags: []cli.Flag{
+		&cli.BoolFlag{
+			Name:  "clear-credentials",
+			Usage: "Also delete saved username/password",
+		},
+	},
+	Action: logoutAction,
+}
+
+var StatusCommand = &cli.Command{
+	Name:   "status",
+	Usage:  "Check current login status",
+	Action: statusAction,
+}
+
+func loginAction(ctx context.Context, cmd *cli.Command) error {
+	storage, err := storage.NewSessionStorage()
+	if err != nil {
+		return fmt.Errorf("failed to initialize session storage: %w", err)
+	}
+
+	forceLogin := cmd.Bool("force")
+
+	if !forceLogin {
+		session, err := storage.LoadSession()
+		if err == nil && session != nil {
+			igClient, err := instagram.NewClientFromSession(session)
+			if err == nil && igClient.IsSessionValid() {
+				fmt.Printf("✓ Already logged in as %s\n", session.Username)
+				fmt.Printf("  Session storage: %s\n", storage.GetBasePath())
+				return nil
+			}
+		}
+	}
+
+	sessionID := cmd.String("session")
+	if sessionID != "" {
+		return loginWithSessionID(storage, sessionID)
+	}
+
+	var username string
+	var password string
+
+	savedCreds, err := storage.LoadCredentials()
+	if err == nil && savedCreds != nil && savedCreds.Username != "" {
+		fmt.Printf("💾 Saved credentials found for @%s\n", savedCreds.Username)
+		useSaved, _ := promptInput("Use saved credentials? [Y/n]: ")
+		if useSaved == "" || strings.ToLower(useSaved) == "y" || strings.ToLower(useSaved) == "yes" {
+			username = savedCreds.Username
+			password = savedCreds.Password
+			fmt.Printf("Using saved credentials for @%s\n", username)
+		}
+	} else {
+		username = cmd.String("username")
+		password = cmd.String("password")
+	}
+
+	if username == "" {
+		var err error
+		username, err = promptInput("Username: ")
+		if err != nil {
+			return fmt.Errorf("failed to read username: %w", err)
+		}
+	}
+
+	if password == "" {
+		var err error
+		password, err = promptPassword("Password: ")
+		if err != nil {
+			return fmt.Errorf("failed to read password: %w", err)
+		}
+	}
+
+	twoFactorCode := cmd.String("2fa")
+
+	debug := cmd.Bool("debug")
+
+	igClient := instagram.NewClientWithCredentials(username, password)
+	igClient.Debug = debug
+
+	fmt.Println("Logging in...")
+
+	result, err := igClient.Login(username, password, twoFactorCode)
+	if err != nil {
+		if result != nil && result.TwoFactorRequired {
+			fmt.Println("\n⚠ Two-factor authentication required")
+
+			if twoFactorCode == "" {
+				twoFactorCode, err = promptInput("Enter 2FA code: ")
+				if err != nil {
+					return fmt.Errorf("failed to read 2FA code: %w", err)
+				}
+			}
+
+			result, err = igClient.Login(username, password, twoFactorCode)
+			if err != nil {
+				return fmt.Errorf("2FA login failed: %w", err)
+			}
+		} else if result != nil && result.ChallengeRequired {
+			fmt.Println("\n⚠ Instagram security challenge required")
+			fmt.Println("  Please complete the challenge in the Instagram app or website")
+			return fmt.Errorf("challenge required")
+		} else {
+			return fmt.Errorf("login failed: %w", err)
+		}
+	}
+
+	if result.Success {
+		if err := storage.SaveSession(igClient.ToSession(), password); err != nil {
+			fmt.Printf("⚠ Warning: Failed to save session: %v\n", err)
+		}
+
+		if err := storage.SaveCredentials(username, password); err != nil {
+			fmt.Printf("⚠ Warning: Failed to save credentials: %v\n", err)
+		}
+
+		fmt.Printf("\n✓ Successfully logged in as %s\n", username)
+		fmt.Printf("  User ID: %d\n", result.UserID)
+		fmt.Printf("  Session saved to: %s\n", storage.GetBasePath())
+		fmt.Println("  💾 Credentials cached for quick re-login")
+	}
+
+	return nil
+}
+
+func loginWithSessionID(storage *storage.Storage, sessionID string) error {
+	igClient := instagram.NewClient()
+
+	result, err := igClient.LoginBySessionID(sessionID)
+	if err != nil {
+		return fmt.Errorf("session login failed: %w", err)
+	}
+
+	if result.Success {
+		if err := storage.SaveSession(igClient.ToSession(), ""); err != nil {
+			fmt.Printf("⚠ Warning: Failed to save session: %v\n", err)
+		}
+
+		fmt.Printf("\n✓ Successfully logged in with session ID\n")
+		fmt.Printf("  User ID: %d\n", result.UserID)
+		fmt.Printf("  Session saved to: %s\n", storage.GetBasePath())
+	}
+
+	return nil
+}
+
+func logoutAction(ctx context.Context, cmd *cli.Command) error {
+	storage, err := storage.NewSessionStorage()
+	if err != nil {
+		return fmt.Errorf("failed to initialize session storage: %w", err)
+	}
+
+	clearCreds := cmd.Bool("clear-credentials")
+
+	storedSession, err := storage.LoadSession()
+	if err != nil || storedSession == nil {
+		fmt.Println("Not currently logged in")
+		return nil
+	}
+
+	igClient, err := instagram.NewClientFromSession(storedSession)
+	if err != nil {
+		if err := storage.DeleteSession(); err != nil {
+			return fmt.Errorf("failed to delete session: %w", err)
+		}
+		fmt.Println("✓ Local session deleted")
+		return nil
+	}
+
+	if err := igClient.Logout(); err != nil {
+		fmt.Printf("⚠ Warning: API logout failed: %v\n", err)
+	}
+
+	if err := storage.DeleteSession(); err != nil {
+		return fmt.Errorf("failed to delete session: %w", err)
+	}
+
+	storage.ClearCache()
+
+	fmt.Printf("✓ Successfully logged out from %s\n", storedSession.Username)
+
+	if clearCreds {
+		if err := storage.DeleteCredentials(); err != nil {
+			fmt.Printf("⚠ Warning: Failed to delete credentials: %v\n", err)
+		} else {
+			fmt.Println("  Saved credentials deleted")
+		}
+	} else if storage.HasCredentials() {
+		fmt.Println("  💾 Credentials still saved for quick re-login")
+		fmt.Println("     Use 'logout --clear-credentials' to remove them")
+	}
+
+	return nil
+}
+
+func statusAction(ctx context.Context, cmd *cli.Command) error {
+	storage, err := storage.NewSessionStorage()
+	if err != nil {
+		return fmt.Errorf("failed to initialize session storage: %w", err)
+	}
+
+	storedSession, err := storage.LoadSession()
+	if err != nil || storedSession == nil {
+		fmt.Println("Status: Not logged in")
+		fmt.Println("\nUse 'go-instagram-cli login' to authenticate")
+		return nil
+	}
+
+	igClient, err := instagram.NewClientFromSession(storedSession)
+	if err != nil {
+		fmt.Println("Status: Session corrupted")
+		fmt.Println("\nUse 'go-instagram-cli login --force' to create a new session")
+		return nil
+	}
+
+	fmt.Println("Status: Logged in")
+	fmt.Printf("  Username: %s\n", storedSession.Username)
+
+	if igClient.UserID() != 0 {
+		fmt.Printf("  User ID: %d\n", igClient.UserID())
+	}
+
+	if igClient.IsSessionValid() {
+		fmt.Println("  Session: Valid")
+	} else {
+		fmt.Println("  Session: Expired (will attempt refresh on next request)")
+	}
+
+	fmt.Printf("  Storage: %s\n", storage.GetBasePath())
+
+	return nil
+}
+
+func promptInput(prompt string) (string, error) {
+	fmt.Print(prompt)
+	reader := bufio.NewReader(os.Stdin)
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(input), nil
+}
+
+func promptPassword(prompt string) (string, error) {
+	fmt.Print(prompt)
+
+	if term.IsTerminal(int(syscall.Stdin)) {
+		password, err := term.ReadPassword(int(syscall.Stdin))
+		fmt.Println()
+		if err != nil {
+			return "", err
+		}
+		return string(password), nil
+	}
+
+	return promptInput("")
+}
