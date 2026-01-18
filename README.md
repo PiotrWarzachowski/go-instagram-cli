@@ -38,10 +38,14 @@ GLOBAL OPTIONS:
 - **Responding in DMs**: This feature will be added in next release
  
 ## Screenshots
+See your stories
 <img width="649" height="692" alt="image" src="https://github.com/user-attachments/assets/c53cd447-135f-4795-b78f-84f2b3a83da7" />
+Browse DMs
 <img width="842" height="1038" alt="image" src="https://github.com/user-attachments/assets/3c8255b9-0a9a-41da-ab38-d87ee1be09e2" />
+Message People
 <img width="763" height="854" alt="image" src="https://github.com/user-attachments/assets/8f3a11c1-d1ea-4b3c-a852-55fc3589d7dd" />
 
+have fun
 
 ## Prerequisites
 - [FFmpeg](https://ffmpeg.org/) must be installed in your PATH.
