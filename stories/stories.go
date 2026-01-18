@@ -198,17 +198,8 @@ func postStoryAction(ctx context.Context, cmd *cli.Command) error {
 			fmt.Printf("❌ Failed to post story: %v\n", result.Error)
 		}
 	} else {
-		// Post photo story
-		resp, err := igClient.PostPhotoStory(filePath)
-		if err != nil {
-			return fmt.Errorf("failed to post photo story: %w", err)
-		}
-
-		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-		fmt.Println("  ✅ Story posted successfully!")
-		fmt.Printf("  🆔 Media ID: %s\n", resp.Media.ID)
-		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+		return fmt.Errorf("failed to post photo story: not implemented")
 	}
 
-	return nil
+	return fmt.Errorf("failed to post story: not implemented")
 }
