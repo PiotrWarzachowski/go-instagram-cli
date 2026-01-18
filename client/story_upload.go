@@ -187,7 +187,6 @@ func (c *Client) RuploadVideo(info VideoInfo) (string, error) {
 func (c *Client) ConfigureStory(uploadID string, info VideoInfo) error {
 	apiURL := "https://i.instagram.com/api/v1/media/configure_to_story/?video=1"
 
-	// 1. Build the Form Data
 	data := url.Values{}
 	data.Set("_uid", strconv.FormatInt(c.UserID(), 10))
 	data.Set("_uuid", c.UUID)
@@ -195,12 +194,11 @@ func (c *Client) ConfigureStory(uploadID string, info VideoInfo) error {
 	data.Set("source_type", "3")
 	data.Set("configure_mode", "1")
 	data.Set("client_timestamp", strconv.FormatInt(time.Now().Unix(), 10))
-	data.Set("camera_session_id", c.UUID) // Often same as UUID
+	data.Set("camera_session_id", c.UUID)
 	data.Set("creation_surface", "camera")
 	data.Set("original_media_type", "video")
 	data.Set("length", fmt.Sprintf("%.0f", info.Duration))
 
-	// Crucial: Device info must be a JSON string inside the form
 	deviceInfo, _ := json.Marshal(map[string]string{
 		"manufacturer":        "Samsung",
 		"model":               "SM-G973F",
@@ -209,13 +207,11 @@ func (c *Client) ConfigureStory(uploadID string, info VideoInfo) error {
 	})
 	data.Set("device", string(deviceInfo))
 
-	// Story-specific clips metadata
 	clips, _ := json.Marshal([]map[string]interface{}{
 		{"length": info.Duration, "source_type": "3"},
 	})
 	data.Set("clips", string(clips))
 
-	// 2. Retry Loop for Transcoding
 	for attempt := 0; attempt < 15; attempt++ {
 		req, _ := http.NewRequest("POST", apiURL, strings.NewReader(data.Encode()))
 		c.setMobileHeaders(req)
