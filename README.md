@@ -24,7 +24,7 @@ COMMANDS:
    login                     Login to your Instagram account
    logout                    Logout from your Instagram account
    status                    Check current login status
-   stories                   View your active stories and their stats
+   stories                   View your active stories and their stats or post new ones
    messages, dm, inbox, dms  View and manage your Instagram direct messages
    help, h                   Shows a list of commands or help for one command
 
