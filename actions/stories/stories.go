@@ -6,12 +6,11 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/go-instagram-cli/internal/platform/instagram"
-	"github.com/go-instagram-cli/internal/storage"
-	"github.com/go-instagram-cli/providers"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/platform/instagram"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/storage"
+	"github.com/PiotrWarzachowski/go-instagram-cli/providers"
 )
 
-// StoriesCommand is the CLI command for viewing and posting stories
 var StoriesCommand = &cli.Command{
 	Name:  "stories",
 	Usage: "View your active stories and their stats",

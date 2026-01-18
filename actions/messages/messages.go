@@ -12,8 +12,8 @@ import (
 
 	"github.com/urfave/cli/v3"
 
-	"github.com/go-instagram-cli/internal/platform/instagram"
-	"github.com/go-instagram-cli/internal/storage"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/platform/instagram"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/storage"
 )
 
 const (

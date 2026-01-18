@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/go-instagram-cli/internal/platform/instagram/session"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/platform/instagram/session"
 )
 
 const (

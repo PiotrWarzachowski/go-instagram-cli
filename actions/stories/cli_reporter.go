@@ -7,7 +7,7 @@ import (
 	"github.com/vbauerster/mpb/v8"
 	"github.com/vbauerster/mpb/v8/decor"
 
-	"github.com/go-instagram-cli/internal/platform/instagram"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/platform/instagram"
 )
 
 type CLIReporter struct {

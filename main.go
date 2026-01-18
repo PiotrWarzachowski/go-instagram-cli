@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/go-instagram-cli/actions/login"
-	"github.com/go-instagram-cli/actions/messages"
-	"github.com/go-instagram-cli/actions/stories"
+	"github.com/PiotrWarzachowski/go-instagram-cli/actions/login"
+	"github.com/PiotrWarzachowski/go-instagram-cli/actions/messages"
+	"github.com/PiotrWarzachowski/go-instagram-cli/actions/stories"
 	"github.com/urfave/cli/v3"
 )
 

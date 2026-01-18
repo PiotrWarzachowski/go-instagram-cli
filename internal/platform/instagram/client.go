@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-instagram-cli/internal/platform/instagram/session"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/platform/instagram/session"
 	"github.com/google/uuid"
 )
 

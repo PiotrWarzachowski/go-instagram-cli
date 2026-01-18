@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-instagram-cli/internal/platform/instagram"
-	"github.com/go-instagram-cli/internal/storage"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/platform/instagram"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/storage"
 )
 
 type StoryProvider struct {

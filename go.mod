@@ -1,4 +1,4 @@
-module github.com/go-instagram-cli
+module github.com/PiotrWarzachowski/go-instagram-cli
 
 go 1.24.0
 

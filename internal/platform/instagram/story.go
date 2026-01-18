@@ -16,7 +16,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/go-instagram-cli/internal/video"
+	"github.com/PiotrWarzachowski/go-instagram-cli/internal/video"
 )
 
 func (c *Client) GetMyStories(ctx context.Context) (*StorySummary, error) {
