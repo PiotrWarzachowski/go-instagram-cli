@@ -1,9 +1,14 @@
 # Go-Instagram-CLI 
 
-<img width="1029" height="487" alt="image" src="https://github.com/user-attachments/assets/3dbe41a3-ac6c-41d1-b1c0-68314b2431ec" />
+<img width="514" height="243" alt="image" src="https://github.com/user-attachments/assets/3dbe41a3-ac6c-41d1-b1c0-68314b2431ec" />
+
+
 
 A high-performance Go CLI for posting Instagram Stories with automatic video segmenting and real-time progress tracking. 
-Use instagram fully inside CLI
+Use instagram fully inside CLI, without unnecesary things like reels, posts etc
+
+
+
 
 ```
 NAME:
