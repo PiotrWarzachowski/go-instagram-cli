@@ -42,20 +42,37 @@ GLOBAL OPTIONS:
 
 ## Missing Features
 - **Responding in DMs**: This feature will be added in next release
- 
-## Screenshots
-See your stories
-<img width="649" height="692" alt="image" src="https://github.com/user-attachments/assets/c53cd447-135f-4795-b78f-84f2b3a83da7" />
-Browse DMs
-<img width="842" height="1038" alt="image" src="https://github.com/user-attachments/assets/3c8255b9-0a9a-41da-ab38-d87ee1be09e2" />
-Message People
-<img width="763" height="854" alt="image" src="https://github.com/user-attachments/assets/8f3a11c1-d1ea-4b3c-a852-55fc3589d7dd" />
+ ## 📸 Screenshots
 
-have fun
+### Story Management
+*View your active stories and see engagement stats at a glance.*
+<img width="649" alt="Stories Screenshot" src="https://github.com/user-attachments/assets/c53cd447-135f-4795-b78f-84f2b3a83da7" />
 
-## Prerequisites
-- [FFmpeg](https://ffmpeg.org/) must be installed in your PATH.
+### Inbox Browsing
+*Stay updated with your Direct Messages without opening a browser.*
+<img width="842" alt="DMs Screenshot" src="https://github.com/user-attachments/assets/3c8255b9-0a9a-41da-ab38-d87ee1be09e2" />
 
-## Installation
+### Messaging interface
+*Direct communication with followers via a clean CLI interface.*
+<img width="763" alt="Messaging Screenshot" src="https://github.com/user-attachments/assets/8f3a11c1-d1ea-4b3c-a852-55fc3589d7dd" />
+
+---
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+> [!IMPORTANT]
+> This tool requires **FFmpeg** installed and added to your system `PATH`.
+> [Download FFmpeg here](https://ffmpeg.org/download.html).
+
+### Build from Source
 ```bash
-go build -o igcli ./cmd/igcli
+# Clone the repository
+git clone git@github.com:PiotrWarzachowski/go-instagram-cli.git
+cd go-instagram-cli
+
+# Build the binary
+go build -o igcli ./cmd/igcli/main.go
+
+# Start using it
+./igcli login
