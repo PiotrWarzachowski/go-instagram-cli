@@ -181,7 +181,7 @@ func postStoryAction(ctx context.Context, cmd *cli.Command) error {
 
 	if isVideo {
 		// Post video story
-		result, err := igClient.PostVideoStory(filePath)
+		result, err := igClient.UploadStory(filePath)
 		if err != nil {
 			return fmt.Errorf("failed to post video story: %w", err)
 		}
