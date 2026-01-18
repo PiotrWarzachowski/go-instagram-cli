@@ -1,7 +1,8 @@
 # Go-Instagram-CLI 
 
-<img width="514" height="243" alt="image" src="https://github.com/user-attachments/assets/3dbe41a3-ac6c-41d1-b1c0-68314b2431ec" />
-
+<p align="center">
+  <img width="514" alt="Hero Logo" src="https://github.com/user-attachments/assets/3dbe41a3-ac6c-41d1-b1c0-68314b2431ec" />
+</p>
 
 
 A high-performance Go CLI for posting Instagram Stories with automatic video segmenting and real-time progress tracking. 
